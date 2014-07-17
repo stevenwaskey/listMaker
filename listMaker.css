@@ -1,0 +1,79 @@
+.LM_container{
+	border 			: 	thin solid red;
+	width			:	500px;
+	padding			: 	0px;
+	height			:	500px;
+	font-family 	:	'Verdana';
+}
+
+.LM_listBox{
+	width			:	100%;
+	height			:	100%;
+	overflow-x		:	none;
+	overflow-y		:	auto;
+	border 			:	thin solid #D3D3D3;
+	list-style 		:	none;
+	padding 		:	3px;
+	background 		:	#FFFFFF;
+	margin-top		:	0px;
+}
+
+.LM_middle{
+	float			:	left;
+	width			:	20%;
+	color			:	#999;
+	border			:	thin solid transparent;
+	font-size 		:	11px;
+}
+
+.LM_item_title{
+	text-align 		:	center;
+	font-size	 	:	12px;
+
+	cursor			:	default;
+	height			:	25px;
+	margin-bottom	:	20px;
+	padding-top		:	4px;
+
+}
+
+.LM_item_select{
+	float 			:	right;
+	margin-top		:	-3px;
+	background 		:  	url('bg.grnArrowRght.png') center;
+	width			:	26px;
+	height			:	24px;
+	margin-left 	:	-24px;
+	cursor 			:	pointer;
+}
+
+.LM_item_deselect{
+	float 			:	left;
+	margin-top		:	-3px;
+	background 		:  	url('bg.redArrowLft.png') center;
+	width			:	26px;
+	height			:	24px;
+	margin-right 	:	-24px;
+	cursor 			:	pointer;
+}
+
+.LM_item{
+	cursor			:	pointer;
+	background		:	#ede9f3;
+	margin-top		:	3px;
+	margin-bottom	:	3px;
+	font-size 		:	10px;
+	padding 		: 	1px; 
+}
+
+
+/* Background */
+.LM_bg_white_to_gray{
+	background 							:	#FFFFFF; /*fallback for non-CSS3 browsers*/
+    background 							:	-webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF) to(#DBDDE1)); /*old webkit*/
+    background 							:	-webkit-linear-gradient(#FFFFFF, #DBDDE1); /*new webkit*/
+    background 							:	-moz-linear-gradient(#FFFFFF, #DBDDE1); /*gecko*/
+    background 							:	-ms-linear-gradient(#FFFFFF, #DBDDE1); /*IE10*/
+    background 							:	-o-linear-gradient(#FFFFFF, #DBDDE1); /*opera 11.10+*/
+    background 							:	linear-gradient(#FFFFFF, #DBDDE1); /*future CSS3 browsers*/
+}
