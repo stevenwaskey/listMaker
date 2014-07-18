@@ -83,7 +83,7 @@
 	/* Supply array of objects. ( [{},{},{}] ) */
 	/* Object parameters & values will be used as data attributes to the individual list items. */
 	'avail_items'	:		$.parseJSON( $("input[name='data']").val() ),
-	'select_items'	:		{},
+	'select_items'	:		{}, //[{"npi_id":243,"npi":"1.2.3.4","title":"this is a test"}]
 
 	/* Middle Display */
 	'middle'		:		"<center>Adding &<br>Removing Items</center><hr style='border:none;border-bottom:thin solid #999;margin-top:10px;margin-bottom:10px;'><p style='margin-bottom:15px;'>1. Select NPI</p><p style='margin-bottom:15px;'>2. Click Arrow to<br>&nbsp;&nbsp;&nbsp;&nbsp;Add or Remove</p><p style='margin-bottom:15px;'>3. Repeat if Needed</p>",
@@ -91,17 +91,22 @@
 	/* Labels */
 	'avail_title'	:		"Available",
 	'select_title'	:		"Selected",
-	'item_substr'	:		100,
+	'item_substr'	:		100,									// Set to 0 to turn off.
 	'title_substr'	:		10000,
 
 	/* Config */
 	'root_url' 		: 		"http://localhost/plugins",				// http://www.example.com
 	'img_fldr'		:		"images",								// images -> http://www.example.com/images, Location of arrow images
-	'match_height'	:		false									// when true, all li items will share the height of the tallest item.
+	'match_height'	:		false,									// when true, all li items will share the height of the tallest item.
+	'on_error'		:		null
 
 	}
-	$('div.dropadd').listMaker( options );
 
+	$('div.dropadd').listMaker( options );
+	$(document).ready(function(){
+
+	});
+	
 
   	</script>
   </body>
