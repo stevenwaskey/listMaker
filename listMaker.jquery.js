@@ -23,32 +23,18 @@ if ( typeof Object.create !== 'function' ) {
 		init: function( options, elem ) {
 
 			/* Set current object as self */
-			/* provides access to other plugin methods (i.e. self.build ) */
 			var self = this;
-			//console.log( "self", typeof self, self );
 
 			/* Set elem html */
-			/* <div class='dropadd'></div> <- the element to add the list to */
 			self.elem = elem;
-			//console.log( "self.elem", typeof self.elem, self.elem );
 
 			/* Set elem jquery object */
-			/* Provides access to jQuery API to html elem above ( self.elem )*/
 			self.$elem = $( elem );
-			//console.log( "self.$elem", typeof self.$elem, self.$elem );
-
-/*
-			-- REMOVE -- 
-			ONLY ACCEPT OBJECTS AS OPTIONS
-
-			self.search = ( typeof options === 'string' )
-				? options
-				: options.search;
-*/
 
 			/* Add user supplied options */
 			self.options = $.extend( {}, $.fn.listMaker.options, options );
 
+			/* Build ListMaker */
 			self.build();
 
 		},
@@ -63,6 +49,9 @@ if ( typeof Object.create !== 'function' ) {
 
 			/* Create HTML List Headers */
 			this.createHeader();
+
+			/* Bind Event Handlers */
+			this.bindHandlers();
 
 		},
 
@@ -95,147 +84,328 @@ if ( typeof Object.create !== 'function' ) {
 
 		createHeader : function(){
 
-			var dynamic_title_css	=	{'position':'absolute','width':this.$elem.find("li:first-child").width() };
+			if( this.$elem.find("ul[name='available'] li").length > 0 ){
+				var width 			=		this.$elem.find("ul[name='available'] li").outerWidth() + 6;	
+			}else{
+				var width 			=		this.$elem.find("ul[name='available']").width() + 6;
+			}
 
-			/* Create Headers */
+			var dynamic_title_css=		{ 'position':'absolute',
+											'width':this.$elem.find("ul[name='available'] li").outerWidth() + 6,
+											'margin-left':'-3px','padding-top':'6px','margin-top':'-3px' };
+
 			var $avail_hdr		=		jQuery( "<li></li>" ).addClass( 'LM_item_title LM_bg_white_to_gray' )
+															.data('id','title')
 															.text( this.options.avail_title )
 															.append( jQuery("<div></div>").addClass('LM_item_select') )
 															.css( dynamic_title_css );
 
+			if( this.$elem.find("ul[name='selected'] li").length > 0 ){
+				var width 			=		this.$elem.find("ul[name='selected'] li").outerWidth() + 6;	
+			}else{
+				var width 			=		this.$elem.find("ul[name='selected']").width() + 6;
+			}
+
+			var dynamic_title_css=		{ 'position':'absolute',
+											'width':width,
+											'margin-left':'-3px','padding-top':'6px','margin-top':'-3px' };
+
 			var $select_hdr		=		jQuery( "<li></li>" ).addClass( 'LM_item_title LM_bg_white_to_gray' )
+															.data('id','title')
 															.text( this.options.select_title )
 															.append( jQuery("<div></div>").addClass('LM_item_deselect') )
 															.css( dynamic_title_css );
 
 			/* Append Headers */
-			this.$elem.find("ul[name='available']").prepend( $avail_hdr.data('id','title') );
-			this.$elem.find("ul[name='selected']").prepend( $select_hdr.data('id','title') );
+			this.$elem.find("ul[name='available']").prepend( $avail_hdr );
+			this.$elem.find("ul[name='selected']").prepend( $select_hdr );
 
-			/* Shift 1st selectable items down behind the title element */
-
-			$("body").prepend( jQuery( "<div></div>" ).css({'border':'thin solid red','height':'200px','width':'200px'}).text('test') );
-			
+			/* If selectable list items exist, move beneath newly positioned header */
+			if( this.$elem.find("ul[name='available'] li").length > 0 ){
+				this.$elem.find("li","ul[name='available']").eq(1)
+							.css('margin-top',this.$elem.find("li","ul[name='available']").eq(0).outerHeight() );	
+			}
+			if( this.$elem.find("ul[name='selected'] li").length > 0 ){
+				this.$elem.find("li","ul[name='selected']").eq(1)
+							.css('margin-top',this.$elem.find("li","ul[name='selected']").eq(0).outerHeight() );
+			}
 
 		},
 
 
 		loadData : function(){
 
-			var self = this;
+			var self 					= 	this;
 			/* Convert object literals into jQuery DOM objects */
-			var count = 0;
+			var position 				= 	1;
 			this.options.avail_items	= 	$.map( this.options.avail_items,function( obj,i ){ 
 
-				var $li					=	jQuery( "<li></li>" );
+				/* Add Item */
+				self.add('available',obj,position );
 
-				/* Just Incase the Title is Missing */
-				if( !obj.hasOwnProperty( 'title' ) )$li.text( "Error: Missing Title" );
-
-				/* Get Item Title */
-				if( obj.hasOwnProperty( 'title' ) ){
-
-					/* Get Title Length ? */
-					dots 				=	obj[ 'title' ].length > self.options.item_substr ? " ..." : "" ;
-					$li.text( obj[ 'title' ].substr( 0,self.options.item_substr ) + dots );
-				}
-
-				/* Set Item Data Attributes */
-				for( var attr in obj )		if( obj.hasOwnProperty( attr ) )	$li.data( attr,obj[ attr ] );
-
-				/* Add Position Counter */
-				count++;					$li.data( 'lm-pos',count );
-
-				/* Add Item Class */
-				$li.addClass( 'LM_item' );
-
-				//return $li;
-				self.$elem.find("ul[name='available']").append( $li );
+				position++;
 
 			});
-			
-			
-			//console.log( this.options.avail_items );
 
-/*
-			for( var item in this.options.avail_items ){
-				if( this.options.avail_items.hasOwnProperty( item ) ){
-					/* Get List Item 
-					item 		=		this.options.avail_items[ item ];
-					
-					for( var item in this.options.avail_items ){
-				}
+			var position 				= 	1;
+			this.options.select_items	= 	$.map( this.options.select_items,function( obj,i ){ 
+
+				/* Add Item */
+				self.add('selected',obj,position );
+
+				position++;
+
+			});
+		},
+
+
+		add : function( list_name,data,position ){
+
+			var self				=	this;
+			var $li					=	jQuery( "<li></li>" );
+
+			/* Was a title supplied to for the item ? */
+			if( !data.hasOwnProperty( 'title' ) )	$li.text( "Error: Missing Title" );
+
+			/* Get Supplied Item Title */
+			if( data.hasOwnProperty( 'title' ) ){
+
+				/* Is title too long / look bad ? */
+				dots				=	self.options.item_substr != 0 ? true : false ;
+				dots 				=	dots && data[ 'title' ].length > self.options.item_substr ? " ..." : "" ;
+				$li.text( data[ 'title' ].substr( 0,self.options.item_substr ) + dots );
+			}
+
+			/* Set Item Data Attributes */
+			for( var attr in data )		if( data.hasOwnProperty( attr ) )	$li.data( attr,data[ attr ] );
+
+			/* Set Position # */
+			$li.data( 'lm-pos',position );
+
+			/* Set Item to Inactive 
+			*	Items will be 'active' when clicked, prior to switching between lists 	
+			*/
+			$li.data( 'lm-active','0' );
+
+			/* Add Item Class */
+			$li.addClass( 'LM_item' );
+
+			/* Update DOM */
+			if( self.$elem.find("ul[name='" + list_name + "']").length > 0 )
+										self.$elem.find("ul[name='" + list_name + "']").append( $li );
+
+		},
+
+		/* move element to selected list */
+		select : function(){
+
+			/* Filter for selected items */
+			var $item = $(this).closest("ul").children("li").filter( function(){
+				return			$(this).data('lm-active') == 1;
+			})
+
+			/* Was an item selected ? */
+			if( $item.length < 1 ){
+				console.log("ERROR:  ","Please select an item before clicking add.");
+				return 			null;
+			}
+
+			/* Remove mouseover styling from the element to be moved & set to unactive */
+			$item.css({'background':'#ede9f3'}).removeClass('LM_bg_blue_w_border').data('active','0');
+
+			/* Clone the item */
+			$clone	=	$item.clone( true );
+
+			/* Is the newly selected item the first in the selected list ? */
+			if( $(this).closest(".LM_container").find("ul[name='selected'] li").length == 1 ){
+
+				/* Set top margin */
+				$clone.css({'margin-top':$(this).closest(".LM_container").find("ul[name='selected'] li").eq(0).outerHeight()});
+
+			}else{
+
+				/* Set top margin */
+				$clone.css({'margin-top':'3px'});
 
 			}
-*/
-			
-			
-/*
-			if( 
-			console.log( this.options.avail_items );
-*/
 
-			//$("li",".dropadd").css({'cursor':'pointer','background':'#ede9f3','margin-top':'3px','margin-bottom':'3px'});
 
-			//	/* Set the first LI in each UL as a title bar. Set CSS & Remove Events.  */
-			//	$("li:first-child",".dropadd").unbind().css({'background':'','cursor':'default','position':'absolute','height':'25px','margin-bottom':'20px','padding-top':'4px'});
+			/* Move the element to the new list */
+			$(this).closest(".LM_container").find("ul[name='selected']").append( $clone );
+
+			/* Remove element from this list */
+			$item.empty().remove();
+	
+			/* Reorder List */
+			var $list = $(this).closest(".LM_container").find("ul[name='selected']");
+
+			/* Does the list item belong before or after it's siblings ? */
+			var $listItems 	= 		$list.find('li').sort(function(a,b){ return $(a).data('lm-pos') - $(b).data('lm-pos'); });
+
+			/* Clone the item to be moved. .clone(true) keeps data / event handlers */
+			$listItems 		= 		$listItems.clone(true);
+	
+			/* Remove the LI element in the wrong position */
+			$(this).closest(".LM_container").find("ul[name='selected']").find('li').remove();
+	
+			/* Append the cloned LI element */
+			$(this).closest(".LM_container").find("ul[name='selected']").append( $listItems );
 
 		},
 
-		refresh: function( length ) {
-			var self = this;
 
-			setTimeout(function() {
-				self.fetch().done(function( results ) {
-					results = self.limit( results.results, self.options.limit );
+		/* move element to available [ shortcut method ] */
+		deselect : function(){
 
-					self.buildFrag( results );
+			/* Filter for selected items */
+			var $item = $(this).closest("ul").children("li").filter( function(){
+				return			$(this).data('lm-active') == 1;
+			})
 
-					self.display();
-
-					if ( typeof self.options.onComplete === 'function' ) {
-						self.options.onComplete.apply( self.elem, arguments );
-					}
-
-					if ( self.options.refresh ) {
-						self.refresh();
-					}
-				});
-			}, length || self.options.refresh );
-		},
-
-		fetch: function() {
-			return $.ajax({
-				url: this.url,
-				data: { q: this.search },
-				dataType: 'jsonp'
-			});
-		},
-
-		buildFrag: function( results ) {
-			var self = this;
-
-			self.tweets = $.map( results, function( obj, i) {
-				return $( self.options.wrapEachWith ).append ( obj.text )[0];
-			});
-		},
-
-		display: function() {
-			var self = this;
-
-			if ( self.options.transition === 'none' || !self.options.transition ) {
-				self.$elem.html( self.tweets ); // that's available??
-			} else {
-				self.$elem[ self.options.transition ]( 500, function() {
-					$(this).html( self.tweets )[ self.options.transition ]( 500 );
-				});
+			/* Was an item selected ? */
+			if( $item.length < 1 ){
+				console.log("ERROR:  ","Please select an item before clicking remove.");
+				return null;
 			}
+
+			/* Remove mouseover styling from the element to be moved & set to unactive */
+			$item.css({'background':'#ede9f3'}).removeClass('LM_bg_blue_w_border').data('active','0');
+
+			/* Clone the item */
+			$clone	=	$item.clone( true );
+
+			/* Is the newly selected item the first in the selected list ? */
+			if( $(this).closest(".LM_container").find("ul[name='available'] li").length == 1 ){
+
+				/* Set top margin */
+				$clone.css({'margin-top':$(this).closest(".LM_container").find("ul[name='available'] li").eq(0).outerHeight()});
+
+			}else{
+
+				/* Set top margin */
+				$clone.css({'margin-top':'3px'});
+
+			}
+
+
+			/* Move the element to the new list */
+			$(this).closest(".LM_container").find("ul[name='available']").append( $clone );
+
+			/* Remove element from this list */
+			$item.empty().remove();
+
+			/* Reorder List */
+			var $list = $(this).closest(".LM_container").find("ul[name='available']");
+
+			/* Does the list item belong before or after it's siblings ? */
+			var $listItems 	= 		$list.find('li').sort(function(a,b){ return $(a).data('lm-pos') - $(b).data('lm-pos'); });
+
+			/* Clone the item to be moved. .clone(true) keeps data / event handlers */
+			$listItems 		= 		$listItems.clone(true);
+	
+			/* Remove the LI element in the wrong position */
+			$(this).closest(".LM_container").find("ul[name='available']").find('li').remove();
+	
+			/* Append the cloned LI element */
+			$(this).closest(".LM_container").find("ul[name='available']").append( $listItems );
+
 		},
 
-		limit: function( obj, count ) {
-			return obj.slice( 0, count );
+		positionInUse : function( list_name,position ){
+		
+			var previous = $("ul[name='" + list_name + "'] li").filter(function() { 
+								return $(this).data("lm-pos") == position;
+							});
+
+			if( previous ){
+				//console.log( "found", position );
+			}else{
+				//console.log( "not found" );
+			}
+
+			return previous;
+		},
+
+		bindHandlers : function(){
+
+			var self	=	this;
+
+			/* List Items (excluding header/title li item) */
+			self.$elem.find("li").filter(function(){ 
+           		return			$(this).data('id') != 'title';
+		   	}).on({
+
+				'mouseover' : function(){
+					$(this).css('background','').addClass('LM_bg_blue_w_border');
+				},
+
+				'mouseout' : function(){
+
+					/* Remove 'Hover' style IF list is not active */
+					if( $(this).data('lm-active') != 1 ){
+						$(this).css('background','#ede9f3').removeClass('LM_bg_blue_w_border');	
+					}
+				},
+
+				'click' : function(){
+
+					/* Is the element active ? */
+					active			=			$(this).data('lm-active');
+
+					/* If $(this) element IS active */
+					if( active == 1 || active == '1' ){
+		
+						/* Remove active flag. 'mouseout' event will remove style class */
+						$(this).data('lm-active','0').css('border','thin solid transparent');
+		
+					/* If element IS NOT active	*/
+					}else{
+
+						/* LI all elements inactive, excluding the first LI title element */
+						self.$elem.find("ul li:not(li:first-child)")
+									.removeClass('LM_bg_blue_w_border')
+									.css('background','#ede9f3')
+									.data('lm-active','0');
+
+						/* Highlight active element, set lm-active = 1 */
+						$(this).css('background','').addClass('LM_bg_blue_w_border').data('lm-active','1');
+					}
+				},
+
+				'dblclick' : function(){
+					/* just add/remove the element */
+					//console.log( "elelemt " );
+
+				}
+
+			});
+
+			$(".LM_item_select").on({
+				'mouseover':function(){		$(this).css("border","thin solid #999"); 			},
+				'mouseout':function(){		$(this).css("border","thin solid transparent"); 	},
+				'click':self.select
+			});
+			$(".LM_item_deselect").on({
+				'mouseover':function(){		$(this).css("border","thin solid #999"); 			},
+				'mouseout':function(){		$(this).css("border","thin solid transparent"); 	},
+				'click':self.deselect
+			});
+
+		},
+
+		onError : function( msg ){
+
+			var self = this;
+
+			if( typeof self.options.on_error == 'function' ){
+				self.options.on_error( msg );
+			}else if( self.options.on_error == 'console' ){
+				console.log( msg );
+			}else if( self.options.on_error == 'alert' ){
+				alert( msg );
+			}
+
 		}
-
 	};
 
 	$.fn.listMaker = function( options ) {
@@ -257,14 +427,12 @@ if ( typeof Object.create !== 'function' ) {
 
 	/* Default ListMaker Settings */
 	$.fn.listMaker.options = {
-/*
-		search: '@tutspremium',
-		wrapEachWith: '<li></li>',
-		limit: 10,
-		refresh: null,
-		onComplete: null,
-		transition: 'fadeToggle'
-*/
+		/*	search: '@tutspremium',
+			wrapEachWith: '<li></li>',
+			limit: 10,
+			refresh: null,
+			onComplete: null,
+			transition: 'fadeToggle' */
 	};
 
 })( jQuery, window, document );
