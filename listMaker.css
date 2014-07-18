@@ -1,5 +1,4 @@
 .LM_container{
-	border 			: 	thin solid red;
 	width			:	500px;
 	padding			: 	0px;
 	height			:	500px;
@@ -38,6 +37,7 @@
 }
 
 .LM_item_select{
+	border 			:	thin solid transparent;
 	float 			:	right;
 	margin-top		:	-3px;
 	background 		:  	url('bg.grnArrowRght.png') center;
@@ -48,6 +48,7 @@
 }
 
 .LM_item_deselect{
+	border 			:	thin solid transparent; 
 	float 			:	left;
 	margin-top		:	-3px;
 	background 		:  	url('bg.redArrowLft.png') center;
@@ -64,6 +65,7 @@
 	margin-bottom	:	3px;
 	font-size 		:	10px;
 	padding 		: 	1px; 
+	border 			: 	thin solid transparent;
 }
 
 
@@ -76,4 +78,23 @@
     background 							:	-ms-linear-gradient(#FFFFFF, #DBDDE1); /*IE10*/
     background 							:	-o-linear-gradient(#FFFFFF, #DBDDE1); /*opera 11.10+*/
     background 							:	linear-gradient(#FFFFFF, #DBDDE1); /*future CSS3 browsers*/
+	-pie-background						: 	linear-gradient(#FFFFFF, #DBDDE1);
+    behavior 							:	url(pie.htc);
+}
+
+.LM_bg_blue_w_border{
+	background-color 					:	rgba(166, 198, 255, .85);
+	-webkit-box-shadow					:	1px 1px 1px 1px rgba(0, 91, 225, .45);
+	-moz-box-shadow						:	1px 1px 1px 1px rgba(0, 91, 225, .45);
+	box-shadow							:	1px 1px 1px 1px rgba(0, 91, 225, .45);
+	-pie-box-shadow 					:	1px 1px 1px 1px rgba(0, 91, 225, .45);
+	-webkit-border-radius 				:	2px;
+	-moz-border-radius 					:	2px;
+	-ms-border-radius 					:	2px;
+	-o-border-radius 					:	2px;
+	border-radius 						:	2px;
+	border-width 						:	1px;
+	border-style 						:	solid;
+	border-color 						:	rgb(0,91,225);
+    behavior 							:	url(pie.htc);
 }
