@@ -1,3 +1,10 @@
+.title_bar{	
+	margin 			:	15px 0px 15px 0px; 
+	width			:	500px;
+	text-align		:	center;
+	font-family 	:	'Verdana';
+}
+
 .LM_container{
 	width			:	500px;
 	padding			: 	0px;
@@ -8,13 +15,10 @@
 .LM_listBox{
 	width			:	100%;
 	height			:	100%;
-	overflow-x		:	none;
-	overflow-y		:	auto;
 	border 			:	thin solid #D3D3D3;
-	list-style 		:	none;
-	padding 		:	3px;
 	background 		:	#FFFFFF;
 	margin-top		:	0px;
+	float 			:	left;
 }
 
 .LM_middle{
@@ -31,7 +35,6 @@
 
 	cursor			:	default;
 	height			:	25px;
-	margin-bottom	:	20px;
 	padding-top		:	4px;
 
 }
@@ -66,6 +69,7 @@
 	font-size 		:	10px;
 	padding 		: 	1px; 
 	border 			: 	thin solid transparent;
+	overflow 		: 	hidden; 
 }
 
 
