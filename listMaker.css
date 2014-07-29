@@ -43,7 +43,7 @@
 	border 			:	thin solid transparent;
 	float 			:	right;
 	margin-top		:	-3px;
-	background 		:  	url('bg.grnArrowRght.png') center;
+	background 		:  	url('https://raw.githubusercontent.com/empcomm/listMaker/master/bg.grnArrowRght.png') center;
 	width			:	26px;
 	height			:	24px;
 	margin-left 	:	-24px;
@@ -54,7 +54,7 @@
 	border 			:	thin solid transparent; 
 	float 			:	left;
 	margin-top		:	-3px;
-	background 		:  	url('bg.redArrowLft.png') center;
+	background 		:  	url('https://raw.githubusercontent.com/empcomm/listMaker/master/bg.redArrowLft.png') center;
 	width			:	26px;
 	height			:	24px;
 	margin-right 	:	-24px;

@@ -1,9 +1,9 @@
 <?php
 
-if( file_exists( 'data.php' ) ) require_once( 'data.php' );
+if( !file_exists( 'data.php' ) ) require_once( 'data.php' );
 
 /* Data key/value pairs will be used as element attributes to the individual list items. */
-if( !file_exists( 'data.php' ) )
+if( file_exists( 'data.php' ) )
 	$data = array(
 					array("value"=>"A","title"=>"A."),
 					array("value"=>"B","title"=>"B."),
@@ -30,7 +30,7 @@ if( !file_exists( 'data.php' ) )
   	var options = {
 
 	'avail_items'	:		$.parseJSON( $("input[name='data']").val() ),
-	'select_items'	:		{}, //[{"npi_id":243,"npi":"1.2.3.4","title":"this is a test"}]
+	'select_items'	:		{},
 
 	/* Middle Display */
 	'middle'		:		"<center>Adding &<br>Removing Items</center>"
@@ -54,6 +54,8 @@ if( !file_exists( 'data.php' ) )
 
 	$(document).ready(function(){
 
+		$lm = $('#listmaker');
+		$lm.addData();
 
 	});
 

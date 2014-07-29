@@ -134,6 +134,12 @@ if ( typeof Object.create !== 'function' ) {
 				self.matchHeight();
 		},
 
+		addData								:		function(){
+
+			console.log( "External Call to Add New Data" );
+
+		},
+
 		add : function( list_name,data,position ){
 			console.log('Adding Item ...');
 			var self						=		this;
