@@ -1,9 +1,9 @@
 <?php
 
-if( !file_exists( 'data.php' ) ) require_once( 'data.php' );
+if( file_exists( 'data.php' ) ) require_once( 'data.php' );
 
 /* Data key/value pairs will be used as element attributes to the individual list items. */
-if( file_exists( 'data.php' ) )
+if( !file_exists( 'data.php' ) )
 	$data = array(
 					array("value"=>"A","title"=>"A."),
 					array("value"=>"B","title"=>"B."),
