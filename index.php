@@ -1,17 +1,14 @@
 <?php
 
-if( !file_exists( 'data.php' ) ) require_once( 'data.php' );
-
 /* Data key/value pairs will be used as element attributes to the individual list items. */
-if( file_exists( 'data.php' ) )
-	$data = array(
-					array("value"=>"A","title"=>"A."),
-					array("value"=>"B","title"=>"B."),
-					array("value"=>"C","title"=>"C."),
-					array("value"=>"D","title"=>"D."),
-					array("value"=>"E","title"=>"E."),
-					array("value"=>"F","title"=>"F.")
-	);
+$data = array(
+				array("value"=>"A","name"=>"letters","title"=>"A."),
+				array("value"=>"B","name"=>"letters","title"=>"B."),
+				array("value"=>"C","name"=>"letters","title"=>"C."),
+				array("value"=>"D","name"=>"letters","title"=>"D."),
+				array("value"=>"E","name"=>"letters","title"=>"E."),
+				array("value"=>"F","name"=>"letters","title"=>"F.")
+);
 
 ?>
 <html>
@@ -29,6 +26,7 @@ if( file_exists( 'data.php' ) )
 
   	var options = {
 
+	/* Initialize listMaker with data */
 	'avail_items'	:		$.parseJSON( $("input[name='data']").val() ),
 	'select_items'	:		{},
 
@@ -54,8 +52,14 @@ if( file_exists( 'data.php' ) )
 
 	$(document).ready(function(){
 
-		$lm = $('#listmaker');
-		$lm.addData();
+//		add element to specific position
+		// $('#listmaker').listMaker( 'addData','available',[{ "value":"G","name":"letters","title":"G.","lm-pos":"4" }] );
+
+//		add element to end of list
+		// $('#listmaker').listMaker( 'addData','available',[{ "value":"G","name":"letters","title":"G." }] );
+
+//		remove item [must be highlighted/active first !!]
+		// $('#listmaker').listMaker( 'removeData','available' );
 
 	});
 

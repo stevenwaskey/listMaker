@@ -18,20 +18,51 @@ if ( typeof Object.create !== 'function' ) {
 
 		init: function( options, elem ) {
 
+			console.log( " - - - - Set up new listMaker - - - - " );
+
 			/* Set current object as self */
-			var self = this;
+			var self 						= 		this;
 
 			/* Set elem html */
-			self.elem = elem;
+			self.elem 						= 		elem;
 
 			/* Set elem jquery object */
-			self.$elem = $( elem );
+			self.$elem 						= 		$( elem );
 
 			/* Add user supplied options */
-			self.options = $.extend( {}, $.fn.listMaker.options, options );
+			self.options 					= 		$.extend( {}, $.fn.listMaker.options, options );
 
 			/* Build ListMaker */
 			self.build();
+
+			/* Store Options for Future Use */
+			self.storeOptions();
+
+		},
+
+		update : function( elem,args ){
+
+			console.log( " - - - - Update existing listMaker - - - - " );
+
+			/* Set current object as self */
+			var self 						= 		this;
+
+			/* Set elem html */
+			self.elem 						= 		elem;
+
+			/* Set elem jquery object */
+			self.$elem 						= 		$( elem );
+
+			/* Set list to update */
+			self.active_list				=		arguments[1][1];
+
+			/* Set data */
+			self.upd_data					=		arguments[1][2];
+
+			if( typeof self[arguments[1][0]] != 'function' )
+				return 								null;
+
+			return									self[arguments[1][0]]();
 
 		},
 
@@ -45,6 +76,29 @@ if ( typeof Object.create !== 'function' ) {
 
 			/* Bind Event Handlers */
 			this.bindHandlers();
+
+		},
+
+		storeOptions : function(){
+
+			var stored_options				=		jQuery.extend( true, {}, this.options );
+			var delete_props				=		['template','avail_items','select_items','middle'];
+
+			for( var i in delete_props )
+				if( stored_options.hasOwnProperty( delete_props[i] ) )
+					delete 							stored_options[ delete_props[i] ];
+ 
+
+			this.$elem.data( 'options',JSON.stringify( stored_options ) );
+
+		},
+
+		fetchOptions : function(){
+
+			if( typeof this.$elem.data('options') == 'string' )
+				return 								$.parseJSON( this.$elem.data('options') );
+
+			return 									{};
 
 		},
 
@@ -65,44 +119,64 @@ if ( typeof Object.create !== 'function' ) {
 			this.$elem.addClass( "LM_container" );
 
 			/* Left Div Elem [ Available Items ] */
-			var $left						=		jQuery( "<div></div>" ).attr('name','available').addClass('LM_listBox').css({'width':this.options.template.left_width});
-													this.$elem.append( $left );
+			var $left						=		jQuery( "<div></div>" )
+														.attr('name','available')
+														.addClass('LM_listBox')
+														.css({'width':this.options.template.left_width});
+														this.$elem.append( $left );
 
 			/* Middle Div Elem [ Notes / Instructions / Custom HTML ] */
-			var $middle						=		jQuery( "<div></div>" ).html( this.options.middle ).addClass( 'LM_middle' );
-													this.$elem.append( $middle );
+			var $middle						=		jQuery( "<div></div>" )
+														.html( this.options.middle )
+														.addClass( 'LM_middle' );
+														this.$elem.append( $middle );
 
 			/* Right Div Elem [ Selected Items ] */
-			var $right						=		jQuery( "<div></div>" ).attr('name','selected').addClass('LM_listBox').css({'width':this.options.template.right_width});
-													this.$elem.append( $right );
+			var $right						=		jQuery( "<div></div>" )
+														.attr('name','selected')
+														.addClass('LM_listBox')
+														.css({'width':this.options.template.right_width});
+														this.$elem.append( $right );
 		},
 
 		createHeader : function(){
 
 			/* Available List Items */
-			var $left						=		jQuery( "<div></div>" ).addClass( 'LM_item_title LM_bg_white_to_gray' )
-																.attr('name','title')
-																.text( this.options.avail_title )
-																.append( jQuery("<div></div>").addClass('LM_item_select') )
-																.css( { 'padding-top':'6px','margin-top':'-3px' } );
-																this.$elem.find('[name="available"]').append( $left );
+			var $left						=		jQuery( "<div></div>" )
+														.addClass( 'LM_item_title LM_bg_white_to_gray' )
+														.attr('name','title')
+														.text( this.options.avail_title )
+														.append( jQuery("<div></div>").addClass('LM_item_select') )
+														.css( { 'padding-top':'6px','margin-top':'-3px' } );
+														this.$elem.find('[name="available"]').append( $left );
 			/* Selected List Items */
 			var $right						=		jQuery( "<div></div>" ).addClass( 'LM_item_title LM_bg_white_to_gray' )
-																.attr('name','title')
-																.text( this.options.select_title )
-																.append( jQuery("<div></div>").addClass('LM_item_deselect') )
-																.css( { 'padding-top':'6px','margin-top':'-3px' } );
-																this.$elem.find('[name="selected"]').append( $right );
+														.attr('name','title')
+														.text( this.options.select_title )
+														.append( jQuery("<div></div>").addClass('LM_item_deselect') )
+														.css( { 'padding-top':'6px','margin-top':'-3px' } );
+														this.$elem.find('[name="selected"]').append( $right );
 		},
 
 		createContainers : function(){
 
-			var height						=		this.$elem.find("[name='available']").innerHeight() - this.$elem.find("[name='available']").find("[name='title']").outerHeight();
-			this.$elem.find("[name='available']").append( jQuery( "<div></div>" ).attr('name','list').height( height ).css({'overflow-y':'auto','overflow-x':'hidden'}) );
+			var height						=		this.$elem.find("[name='available']").innerHeight() 
+											- 		this.$elem.find("[name='available']").find("[name='title']").outerHeight();
+													this.$elem.find("[name='available']")
+														.append( jQuery( "<div></div>" )
+																	.attr('name','list')
+																	.height( height )
+																	.css({'overflow-y':'auto','overflow-x':'hidden'})
+																);
 
-			var height						=		this.$elem.find("[name='selected']").innerHeight() - this.$elem.find("[name='selected']").find("[name='title']").outerHeight();
-			this.$elem.find("[name='selected']").append( jQuery( "<div></div>" ).attr('name','list').height( height ).css({'overflow-y':'auto','overflow-x':'hidden'}) );
-
+			var height						=		this.$elem.find("[name='selected']").innerHeight() 
+											- 		this.$elem.find("[name='selected']").find("[name='title']").outerHeight();
+													this.$elem.find("[name='selected']")
+														.append( jQuery( "<div></div>" )
+																	.attr('name','list')
+																	.height( height )
+																	.css({'overflow-y':'auto','overflow-x':'hidden'})
+																);
 		},
 
 		loadData : function(){
@@ -134,15 +208,104 @@ if ( typeof Object.create !== 'function' ) {
 				self.matchHeight();
 		},
 
-		addData								:		function(){
+		addData : function(){
 
-			console.log( "External Call to Add New Data" );
+			/* Make sure user supplied an object */
+			if( typeof this.upd_data != 'object' || this.upd_data.length == 0 )
+				return								null;
 
+			for( var i in this.upd_data ){
+				if( typeof this.upd_data[i] != 'object' ) 	
+													continue;
+
+				/* Add Data Element */
+				this.add( this.active_list,this.upd_data[i] );
+			}
+
+			/* Update Event Handlers */
+			this.unbindItems();
+			this.bindItems();
+
+			/* Reorder */
+			this.reorderList( this.active_list );
+
+			/* Update Item Heights */
+			if( typeof this.fetchOptions() == 'object' )
+				if( this.fetchOptions().hasOwnProperty('match_height') )
+					if( this.fetchOptions()['match_height'] )
+						this.matchHeight();
+			
+		},
+
+		removeData 							:		function(){
+
+			/* Filter for selected items */
+			var $item 						= 		this.$elem.find(".LM_item")
+														.filter( function(){
+															return	$(this).data('lm-active') == 1;
+													});
+
+			/* Was an item selected ? */
+			if( $item.length < 1 ){
+				$.fn.listMaker.onError( "Please select an item before attempting to remove." );
+				return 								null;
+			}
+
+			$item.empty().remove();
 		},
 
 		add : function( list_name,data,position ){
-			console.log('Adding Item ...');
+
 			var self						=		this;
+
+			/* Get Options */
+			var options 					=		typeof self.options == 'object' ? self.options : this.fetchOptions() ;
+
+			/* Did the user supply position number ? */
+			if( data.hasOwnProperty('lm-pos') ){
+
+				/* Did user supply position number ? */
+				position					=		data.hasOwnProperty('lm-pos') ? data['lm-pos'] : null ;
+
+				/* Get all used positions */
+				var used_positions			=		self.$elem.find("[name='" + list_name + "'] .LM_item").map(
+														function(){return $(this).data("lm-pos");}
+													).get();
+
+				/* Is the user supplied number valid ? */
+				if( isNaN( position ) ){
+
+					$.fn.listMaker.onError( "An invalid position number was used. Please make sure all item numbers are integers." );
+					position 				= 		Math.max.apply( Math, used_positions );
+
+				/* Is the user supplied number in use ? */
+				}else if( used_positions.indexOf( parseInt(position) ) > 0 ){
+
+					/* Filter all list items >= position, increase their position by 1 */
+					self.$elem.find( "div[name='" + list_name + "'] .LM_item" ).filter( function(){
+						if( $(this).data('lm-pos') >= position ){
+							$(this).data('lm-pos',$(this).data('lm-pos') + 1);
+						};
+					});
+
+					
+				}
+
+			}else{
+
+				if( isNaN( position ) ){
+
+					/* Get all used positions, find highest position number, increase by 1 */
+					var used_positions		=		self.$elem.find("[name='" + list_name + "'] .LM_item").map(
+														function(){return $(this).data("lm-pos");}
+													).get();
+
+					position 				= 		( Math.max.apply( Math, used_positions ) ) + 1;
+
+				}
+			}
+
+ 
 			var $item						=		jQuery( "<div></div>" ).addClass("LM_item");
 
 			/* Was a title supplied to for the item ? */
@@ -153,9 +316,9 @@ if ( typeof Object.create !== 'function' ) {
 			if( data['title'].length ){
 
 				/* Is title too long / look bad ? */
-				dots						=		self.options.item_substr != 0 ? true : false ;
-				dots 						=		dots && data[ 'title' ].length > self.options.item_substr ? " ..." : "" ;
-				title						=		( data[ 'title' ].substr( 0,self.options.item_substr ) + dots );
+				dots						=		options.item_substr != 0 ? true : false ;
+				dots 						=		dots && data[ 'title' ].length > options.item_substr ? " ..." : "" ;
+				title						=		( data[ 'title' ].substr( 0,options.item_substr ) + dots );
 				$item.attr( 'title',data[ 'title' ] );
 
 			}else{
@@ -163,13 +326,14 @@ if ( typeof Object.create !== 'function' ) {
 			}
 
 			/* Checkboxes or Radio Buttons */
-			type 							=		self.options.multiple ? "checkbox" : "radio" ;
+			type 							=		options.multiple ? "checkbox" : "radio" ;
 
 			/* Hide Input */
 			var $input						=		jQuery( "<input>" ).attr("type",type).css('display','none');
 
 			/* Set Input Elem Attributes */
-			for( var attr in data )		if( data.hasOwnProperty( attr ) )	$input.attr( attr,data[ attr ] );
+			for( var attr in data )
+				if( data.hasOwnProperty( attr ) )	$input.attr( attr,data[ attr ] );
 
 			/* Build Item */
 			$item.html( title ).append( $input );
@@ -205,19 +369,29 @@ if ( typeof Object.create !== 'function' ) {
 
 		bindHandlers 						: 		function(){
 
-			var self	=	this;
+			this.bindItems();
+			
+			this.bindButtons();
+
+		},
+
+		bindItems							:		function(){
+
+			var self						=		this;
 
 			self.$elem.find(".LM_item").on({
 
 				'mouseover' : function(){
-													$(this).css('background','').addClass('LM_bg_blue_w_border');
+													$(this).css('background','')
+														.addClass('LM_bg_blue_w_border');
 				},
 
 				'mouseout' : function(){
 
 					/* Remove 'Hover' style IF list is not active */
 					if( $(this).data('lm-active') != 1 )
-													$(this).css('background','#ede9f3').removeClass('LM_bg_blue_w_border');	
+													$(this).css('background','#ede9f3')
+														.removeClass('LM_bg_blue_w_border');	
 
 				},
 
@@ -231,7 +405,8 @@ if ( typeof Object.create !== 'function' ) {
 					if( active == 1 || active == '1' ){
 
 						/* Remove active flag. 'mouseout' event will remove style class */
-						$(this).data('lm-active','0').css('border','thin solid transparent');
+						$(this).data('lm-active','0')
+									.css('border','thin solid transparent');
 
 					/* If element IS NOT active	*/
 					}else{
@@ -243,47 +418,69 @@ if ( typeof Object.create !== 'function' ) {
 									.data('lm-active','0');
 
 						/* Highlight active element, set lm-active = 1 */
-						$(this).css('background','').addClass('LM_bg_blue_w_border').data('lm-active','1');
+						$(this).css('background','')
+									.addClass('LM_bg_blue_w_border')
+									.data('lm-active','1');
 					}
 				}
 
 			});
+		},
 
-			$(".LM_item_select").on({
+		bindButtons							:		function(){
+			var self 						=		this;
+			self.$elem.find(".LM_item_select").on({
 				'mouseover':function(){				$(this).css("border","thin solid #999"); 			},
 				'mouseout':function(){				$(this).css("border","thin solid transparent"); 	},
 				'click':							self.select
 			});
-			$(".LM_item_deselect").on({
+			self.$elem.find(".LM_item_deselect").on({
 				'mouseover':function(){				$(this).css("border","thin solid #999"); 			},
 				'mouseout':function(){				$(this).css("border","thin solid transparent"); 	},
 				'click':							self.deselect
 			});
-
 		},
+			
+		unbindItems 						: 		function(){
 
+			var self						=		this;
+
+			self.$elem.find(".LM_item").off();
+		},
 
 		/* move element to selected list */
 		select : function(){
 
 			/* Filter for selected items */
-			var $item 						= 		$(this).closest(".LM_item_title").next("div[name='list']").find(".LM_item").filter( function(){
-														return	$(this).data('lm-active') == 1;
+			var $item 						= 		$(this).closest(".LM_item_title")
+														.next("div[name='list']")
+														.find(".LM_item")
+														.filter( function(){
+															return	$(this).data('lm-active') == 1;
 													})
 
 			/* Was an item selected ? */
 			if( $item.length < 1 ){
 				$.fn.listMaker.onError( "Please select an item before clicking add." );
-				return 			null;
+				return 								null;
 			}
 
 			/* IF radio options, only permit 1 item to move */
-			items							=		$(this).closest(".LM_container").find("div[name='selected'] div[name='list']").find(".LM_item").length > 0;
+			items							=		$(this).closest(".LM_container")
+														.find("div[name='selected'] div[name='list']")
+														.find(".LM_item").length > 0;
 			type 							=		$item.find("input").attr('type').toLowerCase() == "radio";
+
 			if( items && type ){
+
 				$.fn.listMaker.onError( "You may only select 1 item at a time." );
-				$(this).closest(".LM_container").find("div[name='available'] .LM_item").css('background','#ede9f3').removeClass('LM_bg_blue_w_border').data('lm-active','0');
-				return 			null;
+
+													$(this).closest(".LM_container")
+														.find("div[name='available'] .LM_item")
+														.css('background','#ede9f3')
+														.removeClass('LM_bg_blue_w_border')
+														.data('lm-active','0');
+				return 								null;
 			}
 
 			/* Remove mouseover styling from the element to be moved & set to unactive */
@@ -302,28 +499,30 @@ if ( typeof Object.create !== 'function' ) {
 			$(this).closest(".LM_container").find("div[name='selected'] div[name='list']").append( $clone );
 
 			/* Reorder List */
-			var $list 						= 		$(this).closest(".LM_container").find("div[name='selected']  div[name='list']");
+			var $list 						= 		$(this).closest(".LM_container")
+														.find("div[name='selected']  div[name='list']");
 
 			/* Does the list item belong before or after it's siblings ? */
-			var $listItems 					= 		$list.find('.LM_item').sort(function(a,b){ return $(a).data('lm-pos') - $(b).data('lm-pos'); });
+			var $listItems 					= 		$list.find('.LM_item').sort(
+														function(a,b){ return $(a).data('lm-pos') - $(b).data('lm-pos'); }
+													);
 
 			/* Clone the item to be moved. .clone(true) keeps data / event handlers */
 			$listItems 						= 		$listItems.clone(true);
 
-			/* Remove the list item elements in the wrong position */
-			$(this).closest(".LM_container").find("div[name='selected'] div[name='list']").find('.LM_item').remove();
-	
-			/* Append the cloned LI element */
-			$(this).closest(".LM_container").find("div[name='selected'] div[name='list']").append( $listItems );
-
+			/* Set new elements */
+			$(this).closest(".LM_container").find("div[name='selected'] div[name='list']").html( $listItems );
 		},
 
 		/* move element to available [ shortcut method ] */
 		deselect : function(){
 
 			/* Filter for selected items */
-			var $item 						= 		$(this).closest(".LM_item_title").next("div[name='list']").find(".LM_item").filter( function(){
-														return	$(this).data('lm-active') == 1;
+			var $item 						= 		$(this).closest(".LM_item_title")
+														.next("div[name='list']")
+														.find(".LM_item")
+														.filter( function(){
+															return	$(this).data('lm-active') == 1;
 													});
 
 			/* Was an item selected ? */
@@ -351,16 +550,33 @@ if ( typeof Object.create !== 'function' ) {
 			var $list 						= 		$(this).closest(".LM_container").find("div[name='available']  div[name='list']");
 
 			/* Does the list item belong before or after it's siblings ? */
-			var $listItems 					= 		$list.find('.LM_item').sort(function(a,b){ return $(a).data('lm-pos') - $(b).data('lm-pos'); });
+			var $listItems 					= 		$list.find('.LM_item').sort(
+														function(a,b){ return $(a).data('lm-pos') - $(b).data('lm-pos'); }
+													);
 
 			/* Clone the item to be moved. .clone(true) keeps data / event handlers */
 			$listItems 						= 		$listItems.clone(true);
 
-			/* Remove the list item elements in the wrong position */
-			$(this).closest(".LM_container").find("div[name='available'] div[name='list']").find('.LM_item').remove();
-	
-			/* Append the cloned LI element */
-			$(this).closest(".LM_container").find("div[name='available'] div[name='list']").append( $listItems );
+			/* Set new elements */
+			$(this).closest(".LM_container").find("div[name='available'] div[name='list']").html( $listItems );
+
+		},
+
+		reorderList							:		function( list_name ){
+
+			var $list 						= 		this.$elem.closest(".LM_container")
+																.find("div[name='" + list_name + "']  div[name='list']");
+
+			/* Does the list item belong before or after it's siblings ? */
+			var $listItems 					= 		$list.find('.LM_item').sort(
+														function(a,b){ return $(a).data('lm-pos') - $(b).data('lm-pos'); }
+													);
+
+			/* Clone the item to be moved. .clone(true) keeps data / event handlers */
+			$listItems 						= 		$listItems.clone(true);
+
+			/* Append the cloned list elements */
+			this.$elem.closest(".LM_container").find("div[name='" + list_name + "'] div[name='list']").html( $listItems );
 
 		}
 
@@ -368,23 +584,35 @@ if ( typeof Object.create !== 'function' ) {
 
 	$.fn.listMaker = function( options ) {
 
-		/* iterate through all elements in collection to apply plugin to */
-		return this.each(function() {
+		switch( arguments[0] ){
 
-			/* Clone master ListMaker object */
-			var lm 							= 		Object.create( ListMaker );
+			case 'addData': case 'removeData':
 
-			/* Apply user-supplied settings / default settings */
-			lm.init( options, this );
+				/* Clone master ListMaker object */
+				var lm 							= 		Object.create( ListMaker );
 
-			/* dont remember why its here ! */
-			$.data( this, 'listMaker', lm );
+				/* Apply user-supplied settings / default settings */
+				lm.update( this, arguments );
 
-			$.data( this, 'listMaker',{'add1':function(){ console.log('test 1 ');}}  );
-			/* attach the method to the actual item ? */
-			
+				break;
 
-		});
+			default:
+
+				/* iterate through all elements in collection to apply plugin to */
+				return this.each( function() {
+
+					/* Clone master ListMaker object */
+					var lm 							= 		Object.create( ListMaker );
+
+					/* Apply user-supplied settings / default settings */
+					lm.init( options, this );
+
+					/* dont remember why its here ! */
+					$.data( this, 'listMaker', lm );
+
+				});
+		}
+
 	};
 
 	$.fn.listMaker.onError 					= 		function( msg ) {
