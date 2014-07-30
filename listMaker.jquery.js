@@ -82,7 +82,7 @@ if ( typeof Object.create !== 'function' ) {
 		storeOptions : function(){
 
 			var stored_options				=		jQuery.extend( true, {}, this.options );
-			var delete_props				=		['template','avail_items','select_items','middle'];
+			var delete_props				=		['template','avail_items','select_items','middle']; // <- take up additional space & are not neccessary. delete em' if you disagree :)
 
 			for( var i in delete_props )
 				if( stored_options.hasOwnProperty( delete_props[i] ) )
@@ -584,33 +584,33 @@ if ( typeof Object.create !== 'function' ) {
 
 	$.fn.listMaker = function( options ) {
 
-		switch( arguments[0] ){
-
-			case 'addData': case 'removeData':
-
-				/* Clone master ListMaker object */
-				var lm 							= 		Object.create( ListMaker );
-
-				/* Apply user-supplied settings / default settings */
-				lm.update( this, arguments );
-
-				break;
-
-			default:
+		/* Initialize listMaker Object */
+		if( arguments.length == 1 && typeof arguments[0] == 'object'  ){
 
 				/* iterate through all elements in collection to apply plugin to */
 				return this.each( function() {
 
 					/* Clone master ListMaker object */
-					var lm 							= 		Object.create( ListMaker );
+					var lm 					= 		Object.create( ListMaker );
 
 					/* Apply user-supplied settings / default settings */
 					lm.init( options, this );
 
-					/* dont remember why its here ! */
+					/* Store data object */
 					$.data( this, 'listMaker', lm );
 
 				});
+		}
+
+		/* Update listMaker Object */
+		if( ['addData','removeData'].indexOf( arguments[0] ) > -1 ){
+
+				/* Clone master ListMaker object */
+				var lm 						= 		Object.create( ListMaker );
+
+				/* Apply user-supplied settings / default settings */
+				lm.update( this, arguments );
+
 		}
 
 	};
@@ -631,16 +631,29 @@ if ( typeof Object.create !== 'function' ) {
 
 	/* Default ListMaker Settings */
 	$.fn.listMaker.options 					= 		{
-		template							: 		{ left_width:'39%', right_width:'39%' },
-		on_error							: 		function( msg ){ 
+			avail_items						:		{},										// Object, Preloads the the left hand menu on init.
+			select_items					:		{},										// Object, Preloads the the right hand menu on init.
+			middle							:		"",										// String, HTML content to display between the lists.
+			avail_title						:		"",										// String, Title to left hand list.
+			select_title					:		"",										// String, Title to right hand list.
+			item_substr						:		0	,									// Int, Set to 0 to turn off. Anything > 0 will cut the item title short. This is handy for working with small real estate.
+			multiple						:		true,									// true = checkbox, false = radio
+			match_height					:		true,									// when true, all items will share the same height as the tallest item.
+			template						: 		{ left_width:'39%', right_width:'39%' },// Percentage of overall width of listMaker Container. Can also be PX.
+			on_error						: 		function( msg ){ 						// Additional Error Handling
 
 														/* Build additional custom error messaging here */
 														console.log( 'Custom Error: ',msg );
 
-														/* Simply call external functions from here */
+														/* Call external functions */
 														if( typeof do_this_on_error == 'function' ) do_this_on_error( msg );
 
 													}
 	};
 
 })( jQuery, window, document );
+
+function do_this_on_error( msg ){
+	console.log( " DO THIS ON ERROR " );
+	console.log( " errrrrrrrrrrrr ...        :/ " );
+}
