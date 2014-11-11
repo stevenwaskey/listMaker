@@ -18,8 +18,6 @@ if ( typeof Object.create !== 'function' ) {
 
 		init: function( options, elem ) {
 
-			console.log( " - - - - Set up new listMaker - - - - " );
-
 			/* Set current object as self */
 			var self 						= 		this;
 
@@ -41,8 +39,6 @@ if ( typeof Object.create !== 'function' ) {
 		},
 
 		update : function( elem,args ){
-
-			console.log( " - - - - Update existing listMaker - - - - " );
 
 			/* Set current object as self */
 			var self 						= 		this;
@@ -115,8 +111,10 @@ if ( typeof Object.create !== 'function' ) {
 
 		createShell	 :	function(){
 
-			/* Add listMaker class to main container */
+			/* Add listMaker class to main container & update height */
 			this.$elem.addClass( "LM_container" );
+			var height 						=		String( this.options.height ).match(/\d+/)[0];
+			if( !isNaN( height ) )					this.$elem.css( 'height',height + 'px' );
 
 			/* Left Div Elem [ Available Items ] */
 			var $left						=		jQuery( "<div></div>" )
@@ -254,9 +252,22 @@ if ( typeof Object.create !== 'function' ) {
 			$item.empty().remove();
 		},
 
-		add : function( list_name,data,position ){
+		add 								: 		function( list_name,data,options ){
 
 			var self						=		this;
+
+			/* If user didnt supply a data object to load the list with, just carry on ... */
+			if( typeof data != 'object' )
+				return								false;
+
+			/* Check for incoming method options in arguments */
+			var position,bind_event;
+			if( typeof options != 'undefined' ){
+				if( options.hasOwnProperty( 'position' ) )
+					position					=		options[ 'position' ];
+				if( options.hasOwnProperty( 'bind_event' ) )
+					bind_event					=		options[ 'bind_event' ] ? true : false ;
+			}
 
 			/* Get Options */
 			var options 					=		typeof self.options == 'object' ? self.options : this.fetchOptions() ;
@@ -313,6 +324,7 @@ if ( typeof Object.create !== 'function' ) {
 				title 						= 		"Error: Missing Title";
 
 			/* Get Supplied Item Title */
+			data['title']					=		data.hasOwnProperty( 'title' ) ? data['title'] : "" ;
 			if( data['title'].length ){
 
 				/* Is title too long / look bad ? */
@@ -329,7 +341,7 @@ if ( typeof Object.create !== 'function' ) {
 			type 							=		options.multiple ? "checkbox" : "radio" ;
 
 			/* Hide Input */
-			var $input						=		jQuery( "<input>" ).attr("type",type).css('display','none');
+			var $input						=		jQuery( "<input>" ).attr("type",type).css('display','none').prop("checked",( list_name == 'selected' ? "checked" : false ) );
 
 			/* Set Input Elem Attributes */
 			for( var attr in data )
@@ -349,8 +361,35 @@ if ( typeof Object.create !== 'function' ) {
 			/* Add Item Class */
 			$item.addClass( 'LM_item' );
 
+			/* Rebind Event Listeners. Item may have been added AFTER initial event binding */
+			if( bind_event )						self.bindItem( $item );
+
 			/* Update DOM */
 			self.$elem.find("div[name='" + list_name + "'] div[name='list']").append( $item );
+
+
+		},
+
+		getData								:		function( list_name ){
+
+			list_name						=		typeof list_name == 'undefined' ? 'selected' : list_name ;
+			var self						=		this;
+
+			if( !self.$elem.find( "div[name='" + list_name + "']" ).length )
+				return								false;
+
+			var output 						=		{};
+			self.$elem.find( "div[name='" + list_name + "'] input" ).each(function(){
+
+				output[ $(this).val() ]		=		{};
+				for (var i = 0, atts = this.attributes, n = atts.length; i < n; i++)
+					output[ $(this).val() ][ atts[i].nodeName ]
+											=		$(this).attr( atts[i].nodeName );
+
+				output[ $(this).val() ]		=		$.extend( output[ $(this).val() ],$(this).data() );
+			});
+
+			return									output;
 
 		},
 
@@ -372,6 +411,59 @@ if ( typeof Object.create !== 'function' ) {
 			this.bindItems();
 			
 			this.bindButtons();
+
+		},
+
+		bindItem							:		function( $LM_item ){
+
+			var self						=		this;
+
+			$LM_item.on({
+
+				'mouseover' : function(){
+													$(this).css('background','')
+														.addClass('LM_bg_blue_w_border');
+				},
+
+				'mouseout' : function(){
+
+					/* Remove 'Hover' style IF list is not active */
+					if( $(this).data('lm-active') != 1 )
+													$(this).css('background','#ede9f3')
+														.removeClass('LM_bg_blue_w_border');	
+
+				},
+
+				'click' : function(){
+
+					/* Is the element active ? */
+					active					=		$(this).data('lm-active');
+					$input					=		$(this).find("input");
+
+					/* If $(this) element IS active */
+					if( active == 1 || active == '1' ){
+
+						/* Remove active flag. 'mouseout' event will remove style class */
+						$(this).data('lm-active','0')
+									.css('border','thin solid transparent');
+
+					/* If element IS NOT active	*/
+					}else{
+
+						/* LI all elements inactive, excluding the first LI title element */
+						self.$elem.find(".LM_item")
+									.removeClass('LM_bg_blue_w_border')
+									.css('background','#ede9f3')
+									.data('lm-active','0');
+
+						/* Highlight active element, set lm-active = 1 */
+						$(this).css('background','')
+									.addClass('LM_bg_blue_w_border')
+									.data('lm-active','1');
+					}
+				}
+
+			});
 
 		},
 
@@ -638,6 +730,7 @@ if ( typeof Object.create !== 'function' ) {
 			select_title					:		"",										// String, Title to right hand list.
 			item_substr						:		0	,									// Int, Set to 0 to turn off. Anything > 0 will cut the item title short. This is handy for working with small real estate.
 			multiple						:		true,									// true = checkbox, false = radio
+			height							:		'500px',								// Int, Default height in pixels
 			match_height					:		true,									// when true, all items will share the same height as the tallest item.
 			template						: 		{ left_width:'39%', right_width:'39%' },// Percentage of overall width of listMaker Container. Can also be PX.
 			on_error						: 		function( msg ){ 						// Additional Error Handling
@@ -654,6 +747,5 @@ if ( typeof Object.create !== 'function' ) {
 })( jQuery, window, document );
 
 function do_this_on_error( msg ){
-	console.log( " DO THIS ON ERROR " );
-	console.log( " errrrrrrrrrrrr ...        :/ " );
+	/* Put custom error handling inside here */
 }
