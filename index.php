@@ -19,7 +19,12 @@ $data = array(
   <body bgcolor=white>
   	<div class='title_bar'><span>List Maker Plugin</span></div>
   	<input name='data' value='<?php echo json_encode( $data ); ?>' type='hidden'>
-  	<div id='listmaker'></div>
+  	<table width='100%'>
+	  	<tr>
+		  	<td><div id='listMaker1'></div></td>
+		  	<td><div id='listMaker2'></div></td>
+	  	</tr>
+  	</table>
   	<script type='text/javascript' src="jquery-1.11.1.js"></script>
   	<script type='text/javascript' src="listMaker.jquery.js"></script>
   	<script type='text/javascript'>
@@ -48,18 +53,11 @@ $data = array(
 
 	}
 
-	$('#listmaker').listMaker( options );
-
 	$(document).ready(function(){
 
-//		add element to specific position
-		// $('#listmaker').listMaker( 'addData','available',[{ "value":"G","name":"letters","title":"G.","lm-pos":"4" }] );
-
-//		add element to end of list
-		// $('#listmaker').listMaker( 'addData','available',[{ "value":"G","name":"letters","title":"G." }] );
-
-//		remove item [must be highlighted/active first !!]
-		// $('#listmaker').listMaker( 'removeData','available' );
+		console.log( options );
+		$('#listMaker1').listMaker( options );
+		$('#listMaker2').listMaker( options );
 
 	});
 
