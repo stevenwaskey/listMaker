@@ -252,6 +252,16 @@ if ( typeof Object.create !== 'function' ) {
 			$item.empty().remove();
 		},
 
+		clearData							:		function(){
+
+			/* Filter for selected items */
+			var $item 						= 		this.$elem.find(".LM_item")
+														.filter( function(){ return	1; });
+
+			$item.empty().remove();
+
+		},
+
 		add 								: 		function( list_name,data,options ){
 
 			var self						=		this;
